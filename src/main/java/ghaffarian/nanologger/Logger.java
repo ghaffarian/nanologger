@@ -25,26 +25,46 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Logger {
     
-    
+    /**
+     * Enumeration of available log-levels.
+     * Log-levels are used to tag log entries with a label.
+     * There is an ordering among the levels which is used for filtering:
+     * { RAW = 0, ERROR = 1, WARNING = 2, INFORMATION = 3, DEBUG = 4 }
+     */
     public enum Level {
-        ERROR,
-        WARNING,
-        INFORMATION
+        
+        RAW         (0, null),
+        ERROR       (1, "ERR"),
+        WARNING     (2, "WRN"),
+        INFORMATION (3, "INF"),
+        DEBUG       (4, "DBG");
+        
+        private Level(int value, String label) {
+            ORDER = value;
+            LABEL = label;
+        }
+        public final int ORDER;
+        public final String LABEL;
     }
     
     
     private static Lock ioLock;
+    private static Level activeLogLevel;
     private static PrintStream logStream;
     private static PrintWriter logWriter;
     private static DateFormat dateFormat;
+    
 
     /**
-     * Initialize the logger utility using the given file path. If a log file cannot be used successfully, the logger
+     * Initialize the logger utility using the given file path. 
+     * If a log file cannot be used successfully, the logger
      * will use the standard-output stream instead.
      */
     public static void init(String path) throws IOException {
         // First, a fail safe initialization
         logStream = System.out;
+        // Set the enabled log-level
+        activeLogLevel = Level.INFORMATION;
         // Now, the real deal
         try {
             ioLock = new ReentrantLock();
@@ -81,9 +101,23 @@ public class Logger {
         System.setErr(stdErr);
         System.err.println("======= ERROR FILE CREATED on " + date() + " =======");
     }
+    
+    /**
+     * Set the active log-level to the given level.
+     * When the log-level is set to a specific level,
+     * only log-operations less-than or equal to this level
+     * will be stored in the log file; otherwise, they are discarded.
+     * 
+     * This method affects all logging operations afterwards,
+     * and does not affect any logging performed before-hand.
+     */
+    public static void setActiveLogLevel(Level lvl) {
+        activeLogLevel = lvl;
+    }
 
     /**
-     * Returns a string representation of the current system time. The string is formatted as HH:MM:SS:mmm.
+     * Returns a string representation of the current system time. 
+     * The string is formatted as HH:MM:SS:mmm.
      */
     public static String time() {
         int h = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -94,8 +128,8 @@ public class Logger {
     }
 
     /**
-     * Returns a string representation of the full date and time based on the current system calendar. The string is
-     * formatted as EEE yyyy/MMM/dd HH:mm:ss:SSS.
+     * Returns a string representation of the full date and time based on the current system calendar. 
+     * The string is formatted as EEE yyyy/MMM/dd HH:mm:ss:SSS.
      */
     public static String date() {
         return dateFormat.format(Calendar.getInstance().getTime());
@@ -103,12 +137,27 @@ public class Logger {
 
     /**
      * Logs the given message as a new line in the log-file.
+     * This message will be logged at the RAW level
+     * (i.e. without any time-tag and label).
      */
     public static void log(String msg) {
+        log(msg, Level.RAW);
+    }
+
+    /**
+     * Logs the given message as a new line in the log-file.
+     */
+    public static void log(String msg, Level lvl) {
         ioLock.lock();
         try {
-            logWriter.println(msg);
-            // No need to flush, since the writer is set to auto-flush.
+            if (lvl.ORDER <= activeLogLevel.ORDER) {
+                if (lvl.ORDER > Level.RAW.ORDER) {
+                    logWriter.printf("%s [%s] %s\n", date(), lvl.LABEL, msg);
+                    // No need to flush, since the writer is set to auto-flush.
+                } else {
+                    logWriter.println(msg);
+                }
+            }
         } finally {
             ioLock.unlock();
         }
@@ -117,18 +166,13 @@ public class Logger {
     /**
      * Logs the string representation of the given object as a new line in the log-file.
      */
-    public static void log(Object obj) {
-        ioLock.lock();
-        try {
-            logWriter.println(obj.toString());
-            // No need to flush, since the writer is set to auto-flush.
-        } finally {
-            ioLock.unlock();
-        }
+    public static void log(Object obj, Level lvl) {
+        log(obj.toString(), lvl);
     }
 
     /**
-     * Logs the given message as a new line at INFO level in the log-file. This includes the full date and time plus the
+     * Logs the given message as a new line at INFO level in the log-file. 
+     * This includes the full date and time plus the
      * label [INF] before the message.
      */
     public static void info(String msg) {
@@ -142,7 +186,8 @@ public class Logger {
     }
 
     /**
-     * Logs the given message as a new line at WARNING level in the log-file. This includes the full date and time plus
+     * Logs the given message as a new line at WARNING level in the log-file. 
+     * This includes the full date and time plus
      * the label [WRN] before the message.
      */
     public static void warn(String msg) {
@@ -156,8 +201,8 @@ public class Logger {
     }
 
     /**
-     * Fully logs the name and message of the given exception as a new line at WARNING level, and also logs the
-     * stack-trace beneath it.
+     * Fully logs the name and message of the given exception as a new line at WARNING level, 
+     * and also logs the stack-trace beneath it.
      */
     public static void warn(Exception ex) {
         ioLock.lock();
@@ -171,7 +216,8 @@ public class Logger {
     }
 
     /**
-     * Logs the given message as a new line at ERROR level in the log-file. This includes the full date and time plus
+     * Logs the given message as a new line at ERROR level in the log-file. 
+     * This includes the full date and time plus
      * the label [ERR] before the message.
      */
     public static void error(String msg) {
@@ -185,8 +231,8 @@ public class Logger {
     }
 
     /**
-     * Fully logs the name and message of the given exception as a new line at ERROR level, and also logs the
-     * stack-trace beneath it.
+     * Fully logs the name and message of the given exception as a new line at ERROR level, 
+     * and also logs the stack-trace beneath it.
      */
     public static void error(Exception ex) {
         ioLock.lock();
