@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A simple, nimble, thread-safe logging utility.
- * This utility uses a simple text file to save log messages.
+ * This utility uses a simple text file to save log entries.
  * 
  * In case the initialization process fails to setup a text file,
  * the standard-output stream is used as the means for logging.
@@ -39,8 +39,8 @@ public class Logger {
         INFORMATION (3, "INF"),
         DEBUG       (4, "DBG");
         
-        private Level(int value, String label) {
-            ORDER = value;
+        private Level(int order, String label) {
+            ORDER = order;
             LABEL = label;
         }
         public final int ORDER;
@@ -63,7 +63,7 @@ public class Logger {
     public static void init(String path) throws IOException {
         // First, a fail safe initialization
         logStream = System.out;
-        // Set the enabled log-level
+        // Set the active log-level
         activeLogLevel = Level.INFORMATION;
         // Now, the real deal
         try {
@@ -104,9 +104,9 @@ public class Logger {
     
     /**
      * Set the active log-level to the given level.
-     * When the log-level is set to a specific level,
-     * only log-operations less-than or equal to this level
-     * will be stored in the log file; otherwise, they're discarded.
+     * When the log-level is set, only log-operations less-than or 
+     * equal to the active level will be stored in the log file; 
+     * otherwise, they're discarded.
      * 
      * This method affects all logging operations afterwards,
      * and does not affect any logging performed before-hand.
@@ -148,18 +148,18 @@ public class Logger {
      * Logs the given message as a new line in the log-file.
      */
     public static void log(String msg, Level lvl) {
-        ioLock.lock();
-        try {
-            if (lvl.ORDER <= activeLogLevel.ORDER) {
+        if (lvl.ORDER <= activeLogLevel.ORDER) {
+            ioLock.lock();
+            try {
                 if (lvl.ORDER > Level.RAW.ORDER) {
                     logWriter.printf("%s [%s] %s\n", date(), lvl.LABEL, msg);
                     // No need to flush, since the writer is set to auto-flush.
                 } else {
                     logWriter.println(msg);
                 }
+            } finally {
+                ioLock.unlock();
             }
-        } finally {
-            ioLock.unlock();
         }
     }
 
@@ -168,9 +168,9 @@ public class Logger {
      * at the given level, and also logs the stack-trace beneath it.
      */
     public static void log(Exception ex, Level lvl) {
-        ioLock.lock();
-        try {
-            if (lvl.ORDER <= activeLogLevel.ORDER) {
+        if (lvl.ORDER <= activeLogLevel.ORDER) {
+            ioLock.lock();
+            try {
                 if (lvl.ORDER > Level.RAW.ORDER) {
                     logWriter.printf("%s [%s] %s\n", date(), lvl.LABEL, ex.toString());
                     // No need to flush, since the writer is set to auto-flush.
@@ -178,9 +178,9 @@ public class Logger {
                     logWriter.println(ex.toString());
                 }
                 ex.printStackTrace(logWriter);
+            } finally {
+                ioLock.unlock();
             }
-        } finally {
-            ioLock.unlock();
         }
     }
 
