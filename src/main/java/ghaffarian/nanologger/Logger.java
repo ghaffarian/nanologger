@@ -164,6 +164,27 @@ public class Logger {
     }
 
     /**
+     * Fully logs the name and message of the given exception as a new line 
+     * at the given level, and also logs the stack-trace beneath it.
+     */
+    public static void log(Exception ex, Level lvl) {
+        ioLock.lock();
+        try {
+            if (lvl.ORDER <= activeLogLevel.ORDER) {
+                if (lvl.ORDER > Level.RAW.ORDER) {
+                    logWriter.printf("%s [%s] %s\n", date(), lvl.LABEL, ex.toString());
+                    // No need to flush, since the writer is set to auto-flush.
+                } else {
+                    logWriter.println(ex.toString());
+                }
+                ex.printStackTrace(logWriter);
+            }
+        } finally {
+            ioLock.unlock();
+        }
+    }
+
+    /**
      * Logs the string representation of the given object as a new line in the log-file.
      */
     public static void log(Object obj, Level lvl) {
@@ -171,33 +192,24 @@ public class Logger {
     }
 
     /**
+     * Logs the given message as a new line at DEBUG level in the log-file. 
+     */
+    public static void debug(String msg) {
+        log(msg, Level.DEBUG);
+    }
+
+    /**
      * Logs the given message as a new line at INFO level in the log-file. 
-     * This includes the full date and time plus the
-     * label [INF] before the message.
      */
     public static void info(String msg) {
-        ioLock.lock();
-        try {
-            logWriter.println(date() + " [INF] " + msg);
-            // No need to flush, since the writer is set to auto-flush.
-        } finally {
-            ioLock.unlock();
-        }
+        log(msg, Level.INFORMATION);
     }
 
     /**
      * Logs the given message as a new line at WARNING level in the log-file. 
-     * This includes the full date and time plus
-     * the label [WRN] before the message.
      */
     public static void warn(String msg) {
-        ioLock.lock();
-        try {
-            logWriter.println(date() + " [WRN] " + msg);
-            // No need to flush, since the writer is set to auto-flush.
-        } finally {
-            ioLock.unlock();
-        }
+        log(msg, Level.WARNING);
     }
 
     /**
@@ -205,29 +217,14 @@ public class Logger {
      * and also logs the stack-trace beneath it.
      */
     public static void warn(Exception ex) {
-        ioLock.lock();
-        try {
-            warn(ex.toString());
-            ex.printStackTrace(logWriter);
-            // No need to flush, since the writer is set to auto-flush.
-        } finally {
-            ioLock.unlock();
-        }
+        log(ex, Level.WARNING);
     }
 
     /**
      * Logs the given message as a new line at ERROR level in the log-file. 
-     * This includes the full date and time plus
-     * the label [ERR] before the message.
      */
     public static void error(String msg) {
-        ioLock.lock();
-        try {
-            logWriter.println(date() + " [ERR] " + msg);
-            // No need to flush, since the writer is set to auto-flush.
-        } finally {
-            ioLock.unlock();
-        }
+        log(msg, Level.ERROR);
     }
 
     /**
@@ -235,14 +232,7 @@ public class Logger {
      * and also logs the stack-trace beneath it.
      */
     public static void error(Exception ex) {
-        ioLock.lock();
-        try {
-            error(ex.toString());
-            ex.printStackTrace(logWriter);
-            // No need to flush, since the writer is set to auto-flush.
-        } finally {
-            ioLock.unlock();
-        }
+        log(ex, Level.ERROR);
     }
 
     /**
