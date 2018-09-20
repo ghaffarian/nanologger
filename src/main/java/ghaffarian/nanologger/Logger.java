@@ -24,6 +24,15 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Seyed Mohammad Ghaffarian
  */
 public class Logger {
+    
+    
+    public enum Level {
+        ERROR,
+        WARNING,
+        INFORMATION
+    }
+    
+    
     private static Lock ioLock;
     private static PrintStream logStream;
     private static PrintWriter logWriter;
