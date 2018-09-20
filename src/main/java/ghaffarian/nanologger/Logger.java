@@ -106,7 +106,7 @@ public class Logger {
      * Set the active log-level to the given level.
      * When the log-level is set to a specific level,
      * only log-operations less-than or equal to this level
-     * will be stored in the log file; otherwise, they are discarded.
+     * will be stored in the log file; otherwise, they're discarded.
      * 
      * This method affects all logging operations afterwards,
      * and does not affect any logging performed before-hand.
@@ -233,20 +233,6 @@ public class Logger {
      */
     public static void error(Exception ex) {
         log(ex, Level.ERROR);
-    }
-
-    /**
-     * Returns the writer used for this Logger.
-     */
-    public static PrintWriter getWriter() {
-        return logWriter;
-    }
-
-    /**
-     * Returns the stream used for this Logger.
-     */
-    public static PrintStream getStream() {
-        return logStream;
     }
 
     /**
