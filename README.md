@@ -1,2 +1,2 @@
-# nanologger
-Nano-Logger: A Small, Simple, Nimble, Thread-safe Logger in Java
+# Nano-Logger
+A Simple, Nimble, Thread-safe Logger in Java.
