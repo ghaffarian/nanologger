@@ -13,9 +13,7 @@ This simple utility can be used in two ways:
  2. Or add the JAR release as a 3rd-party library to your project CLASSPATH.
 
 ## What about licensing issues?
-Nano-Logger is licensed under the terms of the **LGPL-v3.0**. If you read the LICENSE, you'll see there's no problem using it in your open-source or proprietary software project.
-
-NOTE: If you believe the LGPL-v3 license prohibits you from using this code, then contact me in order to discuss the matter and resolve it.
+Nano-Logger is licensed under the terms of the **Apache-v2.0**. If you read the LICENSE, you'll see there's no problem using it in your open-source or proprietary software project.
 
 ## What does the API look like?
 Just check out the public interface of the single `Logger` class and it's javadoc. It's just plain simple and easy to use!
