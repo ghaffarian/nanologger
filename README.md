@@ -22,7 +22,13 @@ You can also check out the JUnit test codes, which serve as a live and executabl
 
 Here's an example usage:
 
-    // to be completed ...
+    // Initialize the logger with the desired path of your log file
+    Logger.init("/path/to/log/file.log");
+
+    // set the active log-level
+    Logger.setActiveLevel(Logger.Level.WARNING);
+
+    // 
 
 ## Where is this project going?
 Although I'm already satisfied with the current state of this utility class ( it just does the job for me ), I'm considering a few improvements as future work:
