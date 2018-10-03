@@ -49,7 +49,7 @@ public class Logger {
     
     
     private static Lock ioLock;
-    private static Level activeLogLevel;
+    private static Level activeLevel;
     private static PrintStream logStream;
     private static PrintWriter logWriter;
     private static DateFormat dateFormat;
@@ -64,7 +64,7 @@ public class Logger {
         // First, a fail safe initialization
         logStream = System.out;
         // Set the active log-level
-        activeLogLevel = Level.INFORMATION;
+        activeLevel = Level.INFORMATION;
         // Now, the real deal
         try {
             ioLock = new ReentrantLock();
@@ -80,7 +80,7 @@ public class Logger {
             logStream = new PrintStream(new FileOutputStream(logFile), true);
         } finally {
             logWriter = new PrintWriter(logStream, true);
-            logWriter.println("======= LOGGER CREATED on " + date() + " =======");
+            logWriter.println("======= LOG CREATED on " + date() + " =======");
         }
     }
 
@@ -111,8 +111,8 @@ public class Logger {
      * This method affects all logging operations afterwards,
      * and does not affect any logging performed before-hand.
      */
-    public static void setActiveLogLevel(Level lvl) {
-        activeLogLevel = lvl;
+    public static void setActiveLevel(Level lvl) {
+        activeLevel = lvl;
     }
 
     /**
@@ -148,7 +148,7 @@ public class Logger {
      * Logs the given message as a new line in the log-file.
      */
     public static void log(String msg, Level lvl) {
-        if (lvl.ORDER <= activeLogLevel.ORDER) {
+        if (lvl.ORDER <= activeLevel.ORDER) {
             ioLock.lock();
             try {
                 if (lvl.ORDER > Level.RAW.ORDER) {
@@ -168,7 +168,7 @@ public class Logger {
      * at the given level, and also logs the stack-trace beneath it.
      */
     public static void log(Exception ex, Level lvl) {
-        if (lvl.ORDER <= activeLogLevel.ORDER) {
+        if (lvl.ORDER <= activeLevel.ORDER) {
             ioLock.lock();
             try {
                 if (lvl.ORDER > Level.RAW.ORDER) {
