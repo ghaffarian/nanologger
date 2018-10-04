@@ -16,15 +16,10 @@ import java.util.concurrent.locks.ReentrantLock;
  * A simple, nimble, thread-safe logging utility.
  * This utility uses a simple text file to save log entries.
  * 
- * In case the initialization process fails to setup a text file,
- * the standard-output stream is used as the means for logging.
- * In other words, the 'log' method will be equivalent to the 
- * 'System.out.println' method.
- * 
  * @author Seyed Mohammad Ghaffarian
  */
 public class Logger {
-    
+
     /**
      * Enumeration of available log-levels.
      * Log-levels are used to tag log entries with a label.
@@ -49,21 +44,24 @@ public class Logger {
     
     
     private static Lock ioLock;
+    private static boolean enabled;
     private static Level activeLevel;
+    private static boolean echoStdOut;
     private static PrintStream logStream;
     private static PrintWriter logWriter;
     private static DateFormat dateFormat;
     
-
+    
     /**
      * Initialize the logger utility using the given file path. 
      * If a log file cannot be used successfully, the logger
      * will use the standard-output stream instead.
      */
     public static void init(String path) throws IOException {
-        // First, a fail safe initialization
+        // First, fail safe initializations
+        enabled = true;
+        echoStdOut = false;
         logStream = System.out;
-        // Set the active log-level
         activeLevel = Level.INFORMATION;
         // Now, the real deal
         try {
@@ -99,7 +97,7 @@ public class Logger {
         }
         PrintStream stdErr = new PrintStream(new FileOutputStream(errorFile), true);
         System.setErr(stdErr);
-        System.err.println("======= ERROR FILE CREATED on " + date() + " =======");
+        System.err.println("======= ERROR CREATED on " + date() + " =======");
     }
     
     /**
@@ -110,11 +108,33 @@ public class Logger {
      * 
      * This method affects all logging operations afterwards,
      * and does not affect any logging performed before-hand.
+     * 
+     * Default level is INFORMATION.
      */
     public static void setActiveLevel(Level lvl) {
         activeLevel = lvl;
     }
 
+	/**
+	 * If this is set to true, then all log messages will 
+	 * be printed to the standard-output stream as well.
+     * Only the log messages will be echoed to std-out, 
+     * and no time-tags or labels will be printed.
+     * 
+	 * Default value is false.
+	 */
+	public static void setEchoToStdOut(boolean echo) {
+		echoStdOut = echo;
+	}
+	
+	/**
+	 * Enable/Disable the logger.
+	 * If set to false, no logs are written to the stream.
+	 */
+	public static void setEnabled(boolean enable) {
+		enabled = enable;
+	}
+	
     /**
      * Returns a string representation of the current system time. 
      * The string is formatted as HH:MM:SS:mmm.
@@ -143,20 +163,66 @@ public class Logger {
     public static void log(String msg) {
         log(msg, Level.RAW);
     }
+    
+    /**
+     * Formatted RAW logging.
+     * This is similar to printing using printf.
+     */
+    public static void printf(String format, Object... args) {
+        printf(Level.RAW, format, args);
+    }
 
     /**
-     * Logs the given message as a new line in the log-file.
+     * Formatted logging at the given Level.
+     * This is similar to printing using printf.
      */
-    public static void log(String msg, Level lvl) {
+    public static void printf(Level lvl, String format, Object... args) {
+		if (!enabled)
+			return;
         if (lvl.ORDER <= activeLevel.ORDER) {
             ioLock.lock();
             try {
                 if (lvl.ORDER > Level.RAW.ORDER) {
-                    logWriter.printf("%s [%s] %s\n", date(), lvl.LABEL, msg);
+                    Object[] fmtArgs;
+                    if (args != null && args.length > 0) {
+                        fmtArgs = new Object[2 + args.length];
+                        fmtArgs[0] = date();
+                        fmtArgs[1] = lvl.LABEL;
+                        for (int i = 0; i < args.length; ++i)
+                            fmtArgs[i + 2] = args[i];
+                    } else
+                        fmtArgs = new Object[] {date(), lvl.LABEL};
+                    logWriter.printf("%s [%s] | " + format + "\n", fmtArgs);
+                } else {
+                    logWriter.printf(format + "\n", args);
+                }
+                //
+                if (echoStdOut && logStream != System.out)
+                    System.out.printf(format + "\n", args);
+            } finally {
+                ioLock.unlock();
+            }
+        }
+    }
+    
+    /**
+     * Logs the given message as a new line in the log-file.
+     */
+    public static void log(String msg, Level lvl) {
+		if (!enabled)
+			return;
+        if (lvl.ORDER <= activeLevel.ORDER) {
+            ioLock.lock();
+            try {
+                if (lvl.ORDER > Level.RAW.ORDER) {
+                    logWriter.printf("%s [%s] | %s\n", date(), lvl.LABEL, msg);
                     // No need to flush, since the writer is set to auto-flush.
                 } else {
                     logWriter.println(msg);
                 }
+                //
+                if (echoStdOut && logStream != System.out)
+                    System.out.println(msg);
             } finally {
                 ioLock.unlock();
             }
@@ -168,16 +234,23 @@ public class Logger {
      * at the given level, and also logs the stack-trace beneath it.
      */
     public static void log(Exception ex, Level lvl) {
+		if (!enabled)
+			return;
         if (lvl.ORDER <= activeLevel.ORDER) {
             ioLock.lock();
             try {
                 if (lvl.ORDER > Level.RAW.ORDER) {
-                    logWriter.printf("%s [%s] %s\n", date(), lvl.LABEL, ex.toString());
+                    logWriter.printf("%s [%s] | %s\n", date(), lvl.LABEL, ex.toString());
                     // No need to flush, since the writer is set to auto-flush.
                 } else {
                     logWriter.println(ex.toString());
                 }
                 ex.printStackTrace(logWriter);
+                //
+                if (echoStdOut && logStream != System.out) {
+                    System.out.println(ex.toString());
+                    ex.printStackTrace(System.out);
+                }
             } finally {
                 ioLock.unlock();
             }
@@ -235,6 +308,13 @@ public class Logger {
         log(ex, Level.ERROR);
     }
 
+	/**
+	 * Returns the PrintStream used for this Logger.
+	 */
+	public static PrintStream getStream() {
+		return logStream;
+	}
+	
     /**
      * Close the Logger writer.
      */
