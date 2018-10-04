@@ -20,15 +20,44 @@ Just check out the public interface of the single `Logger` class and it's javado
 
 You can also check out the JUnit test codes, which serve as a live and executable API documentation.
 
-Here's an example usage:
+Here's a very basic example usage:
 
     // Initialize the logger with the desired path of your log file
     Logger.init("/path/to/log/file.log");
 
+    // Now start logging!
+    Logger.log("some log message!");
+    Logger.log("another log message!");
+
+The above code shows raw logging (without any time-tags and labels). It's exactly like printing string-messages in a text file. The `init` method only needs to be called once for any logging session.
+
+Another more advanced logging scenario (more common in larger software projects) is logging with time-tags and various log-level labels:
+
     // set the active log-level
     Logger.setActiveLevel(Logger.Level.WARNING);
 
-    // 
+    // now do some logging at various levels
+    Logger.log("some warning message", Logger.Level.WARNING);
+    Logger.log("some error message", Logger.Level.ERROR);
+    Logger.log("some debug message", Logger.Level.DEBUG);
+
+The result of the above three log operations will look like below:
+
+    Thu 2018/Oct/04 10:52:18:923 [WRN] some warning message
+    Thu 2018/Oct/04 10:52:18:923 [ERR] some error message
+
+
+Note that the debug message is missing. That's because we have set the active log level to `WARNING`; so any log operations above the active-level will be ignored and not written to the log file.
+
+There are also short-hand methods for the various log-levels available:
+
+    // short-hand log operations in ascending level
+    Logger.log("some raw message");
+    Logger.error("some error message");
+    Logger.warn("some warning message");
+    Logger.info("some information message");
+    Logger.debug("some debug message");
+
 
 ## Where is this project going?
 Although I'm already satisfied with the current state of this utility class ( it just does the job for me ), I'm considering a few improvements as future work:
