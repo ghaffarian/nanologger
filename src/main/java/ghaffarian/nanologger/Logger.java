@@ -115,26 +115,26 @@ public class Logger {
         activeLevel = lvl;
     }
 
-	/**
-	 * If this is set to true, then all log messages will 
-	 * be printed to the standard-output stream as well.
+    /**
+     * If this is set to true, then all log messages will 
+     * be printed to the standard-output stream as well.
      * Only the log messages will be echoed to std-out, 
      * and no time-tags or labels will be printed.
      * 
-	 * Default value is false.
-	 */
-	public static void setEchoToStdOut(boolean echo) {
-		echoStdOut = echo;
-	}
-	
-	/**
-	 * Enable/Disable the logger.
-	 * If set to false, no logs are written to the stream.
-	 */
-	public static void setEnabled(boolean enable) {
-		enabled = enable;
-	}
-	
+     * Default value is false.
+     */
+    public static void setEchoToStdOut(boolean echo) {
+        echoStdOut = echo;
+    }
+    
+    /**
+     * Enable/Disable the logger.
+     * If set to false, no logs are written to the stream.
+     */
+    public static void setEnabled(boolean enable) {
+        enabled = enable;
+    }
+    
     /**
      * Returns a string representation of the current system time. 
      * The string is formatted as HH:MM:SS:mmm.
@@ -177,8 +177,8 @@ public class Logger {
      * This is similar to printing using printf.
      */
     public static void printf(Level lvl, String format, Object... args) {
-		if (!enabled)
-			return;
+        if (!enabled)
+            return;
         if (lvl.ORDER <= activeLevel.ORDER) {
             ioLock.lock();
             try {
@@ -209,8 +209,8 @@ public class Logger {
      * Logs the given message as a new line in the log-file.
      */
     public static void log(String msg, Level lvl) {
-		if (!enabled)
-			return;
+        if (!enabled)
+            return;
         if (lvl.ORDER <= activeLevel.ORDER) {
             ioLock.lock();
             try {
@@ -234,8 +234,8 @@ public class Logger {
      * at the given level, and also logs the stack-trace beneath it.
      */
     public static void log(Exception ex, Level lvl) {
-		if (!enabled)
-			return;
+        if (!enabled)
+            return;
         if (lvl.ORDER <= activeLevel.ORDER) {
             ioLock.lock();
             try {
@@ -308,13 +308,13 @@ public class Logger {
         log(ex, Level.ERROR);
     }
 
-	/**
-	 * Returns the PrintStream used for this Logger.
-	 */
-	public static PrintStream getStream() {
-		return logStream;
-	}
-	
+    /**
+     * Returns the PrintStream used for this Logger.
+     */
+    public static PrintStream getStream() {
+        return logStream;
+    }
+    
     /**
      * Close the Logger writer.
      */
