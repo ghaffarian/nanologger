@@ -43,16 +43,17 @@ Another more advanced logging scenario (more common in larger software projects)
 
 The result of the above three log operations will look like below:
 
-    Thu 2018/Oct/04 10:52:18:923 [WRN] some warning message
-    Thu 2018/Oct/04 10:52:18:923 [ERR] some error message
+    Thu 2018/Oct/04 10:52:18:923 [WRN] | some warning message
+    Thu 2018/Oct/04 10:52:18:923 [ERR] | some error message
 
 
 Note that the debug message is missing. That's because we have set the active log level to `WARNING`; so any log operations above the active-level will be ignored and not written to the log file.
 
 There are also short-hand methods for the various log-levels available:
 
-    // short-hand log operations in ascending level
+    // short-hand log operations in ascending order
     Logger.log("some raw message");
+    Logger.printf("%s", "another raw message!");
     Logger.error("some error message");
     Logger.warn("some warning message");
     Logger.info("some information message");
@@ -60,6 +61,6 @@ There are also short-hand methods for the various log-levels available:
 
 
 ## Where is this project going?
-Although I'm already satisfied with the current state of this utility class ( it just does the job for me ), I'm considering a few improvements as future work:
- - Adding support for `printf` style formatting APIs.
- - Making the API consistent with one of the well-known logging-API facades ( such as [SLF4J](https://www.slf4j.org/) or [Apache Commons Logging](http://commons.apache.org/proper/commons-logging/) ). I haven't thoroughly studied this yet; so, this will only happen if it doesn't conflict with the main goals of the project (***being simple and nimble***).
+Although I'm already satisfied with the current state of this utility class, I'm considering to make the API consistent with one of the well-known logging-API facades (such as [SLF4J](https://www.slf4j.org/) or [Apache Commons Logging](http://commons.apache.org/proper/commons-logging/)). I haven't thoroughly studied this yet; so, this will only happen if it doesn't conflict with the main goals of the project (***being simple and nimble***).
+
+Other than this, if you have any bright ideas or feature request, you are highly welcome to open an issue, or even contribute to this project. Of course, contributions or feature-requests which do not conflict with the main goals are acceptable. Remember, I don't intend to create another bloated/complicated logging library in Java!
