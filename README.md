@@ -22,7 +22,7 @@ You can also check out the JUnit test codes, which serve as a live and executabl
 
 Here's a very basic example usage:
 
-    // Initialize the logger with the desired path of your log file
+    // Initialize the logger with a desired path for your log file
     Logger.init("/path/to/log/file.log");
 
     // Now start logging!
