@@ -96,6 +96,15 @@ public class LoggerTest {
     }
     
     @Test
+    public void printfTest() throws IOException {
+        Logger.printf("printf no args");
+        Logger.printf("printf %d %s 0x%X", 1234, "5678", 3735928559L);
+        Logger.printf(Logger.Level.WARNING, "printf warning no args");
+        Logger.printf(Logger.Level.INFORMATION, "printf info %d %s 0x%X", 1234, "5678", 3735928559L);
+        assertEquals(4, countOccurrenceOf("printf"));
+    }
+    
+    @Test
     public void stdErrorRedirectTest() throws IOException {
         Logger.redirectStandardError("test");
         System.err.println("std error test 1");
@@ -113,6 +122,12 @@ public class LoggerTest {
         assertEquals(3, counter);
     }
     
+    @AfterClass
+    public static void close() {
+        Logger.close();
+    }
+
+    
     private void throwTestException() {
         throw new RuntimeException("This is just a test exception");
     }
@@ -128,10 +143,5 @@ public class LoggerTest {
             }
         }
         return counter;
-    }
-    
-    @AfterClass
-    public static void close() {
-        Logger.close();
     }
 }
