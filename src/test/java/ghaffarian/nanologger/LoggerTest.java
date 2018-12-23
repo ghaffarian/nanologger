@@ -34,7 +34,7 @@ public class LoggerTest {
         Logger.log("test1 RAW", Logger.Level.RAW);
         Logger.log("test1 ERR", Logger.Level.ERROR);
         Logger.log("test1 WRN", Logger.Level.WARNING);
-        Logger.log("test1 INF", Logger.Level.INFORMATION);
+        Logger.log("test1 INF", Logger.Level.INFO);
         Logger.log("test1 DBG", Logger.Level.DEBUG);
         assertEquals(6, countOccurrenceOf("test1"));
     }
@@ -67,7 +67,7 @@ public class LoggerTest {
         Logger.debug("test4 DBG");
         assertEquals(2, countOccurrenceOf("test4"));
         //
-        Logger.setActiveLevel(Logger.Level.INFORMATION);
+        Logger.setActiveLevel(Logger.Level.INFO);
         Logger.log("test5");
         Logger.error("test5 ERR");
         Logger.warn("test5 WRN");
@@ -88,7 +88,7 @@ public class LoggerTest {
         try {
             throwTestException();
         } catch(RuntimeException ex) {
-            Logger.log(ex, Logger.Level.INFORMATION);
+            Logger.log(ex, Logger.Level.INFO);
             Logger.warn(ex);
             Logger.error(ex);
         }
@@ -100,7 +100,7 @@ public class LoggerTest {
         Logger.printf("printf no args");
         Logger.printf("printf %d %s 0x%X", 1234, "5678", 3735928559L);
         Logger.printf(Logger.Level.WARNING, "printf warning no args");
-        Logger.printf(Logger.Level.INFORMATION, "printf info %d %s 0x%X", 1234, "5678", 3735928559L);
+        Logger.printf(Logger.Level.INFO, "printf info %d %s 0x%X", 1234, "5678", 3735928559L);
         assertEquals(4, countOccurrenceOf("printf"));
     }
     
