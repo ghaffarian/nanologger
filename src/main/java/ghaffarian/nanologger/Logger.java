@@ -28,11 +28,11 @@ public class Logger {
      */
     public enum Level {
         
-        RAW         (0, null),
-        ERROR       (1, "ERR"),
-        WARNING     (2, "WRN"),
-        INFORMATION (3, "INF"),
-        DEBUG       (4, "DBG");
+        RAW      (0, null),
+        ERROR    (1, "ERR"),
+        WARNING  (2, "WRN"),
+        INFO     (3, "INF"),
+        DEBUG    (4, "DBG");
         
         private Level(int order, String label) {
             ORDER = order;
