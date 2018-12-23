@@ -65,7 +65,7 @@ public class Logger {
         stdOutEcho = false;
         timeTagEnabled = true;
         logStream = System.out;
-        activeLevel = Level.INFORMATION;
+        activeLevel = Level.INFO;
         stdOutEchoLevel = activeLevel;
         // Now, the real deal
         try {
@@ -301,7 +301,7 @@ public class Logger {
      * Logs the given message as a new line at INFO level in the log-file. 
      */
     public static void info(String msg) {
-        log(msg, Level.INFORMATION);
+        log(msg, Level.INFO);
     }
 
     /**
